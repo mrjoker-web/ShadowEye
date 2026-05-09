@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShadowEye — Ja Disponivel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;700;800&family=Inconsolata:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:      #04080d;
+  --surface: #070e17;
+  --blue:    #00cfff;
+  --blue2:   #0077ff;
+  --green:   #00ff9d;
+  --red:     #ff3c5a;
+  --white:   #e8f4ff;
+  --dim:     #2a3d52;
+  --dimmer:  #111d29;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Inconsolata', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Noise texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.6;
+}
+
+/* Animated grid background */
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,207,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,207,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridMove 20s linear infinite;
+  z-index: 0;
+}
+
+@keyframes gridMove {
+  0%   { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+/* Radial glow center */
+.glow-center {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(ellipse, rgba(0,119,255,0.07) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+/* ── Top bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 64px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--dim);
+  opacity: 0;
+  animation: fadeUp 0.6s ease forwards;
+}
+
+.topbar-left {
+  font-family: 'Syne Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--blue);
+  text-transform: uppercase;
+}
+
+.topbar-right {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #3a5570;
+  text-transform: uppercase;
+}
+
+/* ── Status pill ── */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,60,90,0.08);
+  border: 1px solid rgba(255,60,90,0.25);
+  padding: 6px 16px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--red);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.1s ease forwards;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--red); }
+  50% { opacity: 0.3; box-shadow: none; }
+}
+
+/* ── Eye SVG hero ── */
+.eye-hero {
+  text-align: center;
+  margin-bottom: 36px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s ease forwards;
+}
+
+.eye-svg {
+  width: 120px;
+  height: 60px;
+  filter: drop-shadow(0 0 18px rgba(0,207,255,0.5));
+}
+
+/* Eye animation */
+.eye-pupil {
+  animation: eyeMove 4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes eyeMove {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(8px); }
+  75% { transform: translateX(-8px); }
+}
+
+.eye-lid {
+  animation: blink2 5s ease-in-out infinite;
+  transform-origin: 60px 30px;
+}
+
+@keyframes blink2 {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.05); }
+}
+
+/* ── Title ── */
+.title-block {
+  margin-bottom: 12px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.3s ease forwards;
+}
+
+.pre-title {
+  font-family: 'Syne Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 5px;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.main-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(52px, 12vw, 96px);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -2px;
+  color: var(--white);
+  position: relative;
+  display: inline-block;
+}
+
+.main-title .shadow {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(0,207,255,0.3);
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: -1;
+}
+
+.title-eye {
+  color: var(--blue);
+  text-shadow:
+    0 0 20px rgba(0,207,255,0.6),
+    0 0 60px rgba(0,207,255,0.2);
+}
+
+.sub-title {
+  font-family: 'Syne Mono', monospace;
+  font-size: clamp(13px, 3vw, 18px);
+  letter-spacing: 6px;
+  color: #3a5570;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+/* ── Divider ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 36px 0;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.4s ease forwards;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--dim), transparent);
+}
+
+.divider-icon {
+  font-size: 12px;
+  color: var(--blue);
+  letter-spacing: 4px;
+  font-family: 'Syne Mono', monospace;
+}
+
+/* ── Description ── */
+.desc {
+  font-size: 15px;
+  line-height: 1.9;
+  color: #8aa8c4;
+  margin-bottom: 40px;
+  max-width: 600px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.5s ease forwards;
+}
+
+.desc strong {
+  color: var(--white);
+  font-weight: 700;
+}
+
+.desc .highlight {
+  color: var(--blue);
+  font-family: 'Syne Mono', monospace;
+  font-size: 13px;
+  background: rgba(0,207,255,0.06);
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+/* ── Feature grid ── */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 44px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.6s ease forwards;
+}
+
+.feat {
+  background: var(--dimmer);
+  border: 1px solid var(--dim);
+  border-left: 2px solid var(--blue2);
+  padding: 16px 20px;
+  transition: border-color 0.3s, background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, rgba(0,119,255,0.04), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.feat:hover { border-left-color: var(--blue); background: #0a1520; }
+.feat:hover::before { opacity: 1; }
+
+.feat-icon {
+  font-size: 18px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.feat-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--white);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.feat-desc {
+  font-size: 11.5px;
+  color: #4a6880;
+  line-height: 1.5;
+}
+
+/* ── Pipeline ── */
+.pipeline {
+  background: var(--dimmer);
+  border: 1px solid var(--dim);
+  padding: 24px 28px;
+  margin-bottom: 44px;
+  font-family: 'Syne Mono', monospace;
+  font-size: 12px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.7s ease forwards;
+}
+
+.pipeline-title {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.pipeline-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  color: #3a5570;
+  font-size: 12px;
+}
+
+.pipeline-row.active {
+  color: var(--white);
+}
+
+.pipeline-row.new-tool {
+  color: var(--blue);
+  text-shadow: 0 0 10px rgba(0,207,255,0.4);
+}
+
+.pipeline-row .tool-name {
+  min-width: 120px;
+}
+
+.pipeline-arrow {
+  color: var(--dim);
+  font-size: 10px;
+}
+
+.badge-new {
+  background: rgba(0,207,255,0.1);
+  border: 1px solid rgba(0,207,255,0.3);
+  color: var(--blue);
+  font-size: 8px;
+  letter-spacing: 2px;
+  padding: 2px 8px;
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(0,207,255,0.2); }
+  50% { box-shadow: 0 0 14px rgba(0,207,255,0.5); }
+}
+
+/* ── Progress bar ── */
+.progress-block {
+  margin-bottom: 44px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.8s ease forwards;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.progress-label span:first-child { color: #3a5570; }
+.progress-label span:last-child { color: var(--blue); }
+
+.progress-bar {
+  height: 3px;
+  background: var(--dimmer);
+  border: 1px solid var(--dim);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--blue2), var(--blue));
+  box-shadow: 0 0 10px rgba(0,207,255,0.5);
+  animation: fillBar 1.8s 1.2s ease forwards;
+}
+
+@keyframes fillBar {
+  to { width: 35%; }
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: shimmer 2s 2s linear infinite;
+}
+
+@keyframes shimmer {
+  to { left: 200%; }
+}
+
+/* ── CTA ── */
+.cta-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 60px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.9s ease forwards;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,119,255,0.12);
+  border: 1px solid rgba(0,119,255,0.4);
+  color: var(--blue);
+  font-family: 'Syne Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  padding: 14px 28px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,119,255,0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.btn-primary:hover {
+  border-color: var(--blue);
+  box-shadow: 0 0 20px rgba(0,207,255,0.2), inset 0 0 20px rgba(0,119,255,0.05);
+  color: var(--white);
+}
+
+.btn-primary:hover::before { opacity: 1; }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: 1px solid var(--dim);
+  color: #3a5570;
+  font-family: 'Syne Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  padding: 14px 28px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  border-color: #3a5570;
+  color: var(--white);
+}
+
+/* ── Footer ── */
+.footer {
+  border-top: 1px solid var(--dim);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: gap;
+  opacity: 0;
+  animation: fadeUp 0.6s 1s ease forwards;
+}
+
+.footer-brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--white);
+  letter-spacing: 2px;
+}
+
+.footer-brand span { color: var(--blue); }
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #2a3d52;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--blue); }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Corner decorations */
+.corner {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  opacity: 0.15;
+}
+
+.corner-tl { top: 20px; left: 20px; border-top: 1px solid var(--blue); border-left: 1px solid var(--blue); }
+.corner-tr { top: 20px; right: 20px; border-top: 1px solid var(--blue); border-right: 1px solid var(--blue); }
+.corner-bl { bottom: 20px; left: 20px; border-bottom: 1px solid var(--blue); border-left: 1px solid var(--blue); }
+.corner-br { bottom: 20px; right: 20px; border-bottom: 1px solid var(--blue); border-right: 1px solid var(--blue); }
+
+/* scan line */
+.scanline {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,207,255,0.15), transparent);
+  animation: scan 6s linear infinite;
+  z-index: 9997;
+  pointer-events: none;
+}
+
+@keyframes scan {
+  0%   { top: 0%; }
+  100% { top: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-center"></div>
+<div class="scanline"></div>
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<div class="wrap">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">mrjoker-web / Shadow Suite</div>
+    <div class="topbar-right">// New Tool Drop</div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-pill">
+    <span class="status-dot"></span>
+    Ativa e Disponivel
+  </div>
+
+  <!-- Eye hero -->
+  <div class="eye-hero">
+    <svg class="eye-svg" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g class="eye-lid">
+        <!-- Eye outline -->
+        <path d="M5 30 Q30 5 60 5 Q90 5 115 30 Q90 55 60 55 Q30 55 5 30Z"
+              stroke="#00cfff" stroke-width="1.5" fill="none"
+              filter="url(#glow)"/>
+        <!-- Iris -->
+        <circle cx="60" cy="30" r="16" stroke="#0077ff" stroke-width="1" fill="rgba(0,119,255,0.08)"/>
+        <!-- Pupil -->
+        <g class="eye-pupil">
+          <circle cx="60" cy="30" r="8" fill="rgba(0,207,255,0.15)" stroke="#00cfff" stroke-width="1"/>
+          <circle cx="60" cy="30" r="3" fill="#00cfff"/>
+        </g>
+        <!-- Shine -->
+        <circle cx="66" cy="25" r="2" fill="rgba(255,255,255,0.4)"/>
+        <!-- Lashes top -->
+        <line x1="30" y1="12" x2="28" y2="6" stroke="#00cfff" stroke-width="0.8" opacity="0.4"/>
+        <line x1="45" y1="8" x2="44" y2="2" stroke="#00cfff" stroke-width="0.8" opacity="0.4"/>
+        <line x1="60" y1="5" x2="60" y2="0" stroke="#00cfff" stroke-width="0.8" opacity="0.4"/>
+        <line x1="75" y1="8" x2="76" y2="2" stroke="#00cfff" stroke-width="0.8" opacity="0.4"/>
+        <line x1="90" y1="12" x2="92" y2="6" stroke="#00cfff" stroke-width="0.8" opacity="0.4"/>
+      </g>
+      <!-- Scan ring -->
+      <circle cx="60" cy="30" r="24" stroke="rgba(0,207,255,0.15)" stroke-width="0.5" stroke-dasharray="4 4">
+        <animateTransform attributeName="transform" type="rotate" from="0 60 30" to="360 60 30" dur="8s" repeatCount="indefinite"/>
+      </circle>
+      <defs>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- Title -->
+  <div class="title-block">
+    <div class="pre-title">// Nova Ferramenta — Shadow Suite</div>
+    <div style="position:relative; display:inline-block;">
+      <div class="main-title">
+        Shadow<span class="title-eye">Eye</span>
+        <span class="shadow" aria-hidden="true">Shadow<span style="color:transparent;-webkit-text-stroke:1px rgba(0,207,255,0.15)">Eye</span></span>
+      </div>
+    </div>
+    <div class="sub-title">Network Device Monitor</div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">◈</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Description -->
+  <p class="desc">
+    <strong>ShadowEye</strong> é a nova adição ao arsenal da Shadow Suite.
+    Monitoriza a tua rede local em tempo real — descobre todos os dispositivos conectados,
+    identifica fabricantes por <span class="highlight">MAC address</span>,
+    estima o sistema operativo via <span class="highlight">TTL fingerprinting</span>
+    e alerta-te <strong>instantaneamente</strong> quando um dispositivo desconhecido entra na rede.
+    <br><br>
+    Para quem quer saber exatamente <strong>quem está na sua rede</strong>.
+  </p>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feat">
+      <span class="feat-icon">🔎</span>
+      <div class="feat-name">ARP Discovery</div>
+      <div class="feat-desc">Scan via ARP — descobre todos os hosts ativos rapidamente</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">🏭</span>
+      <div class="feat-name">Vendor Lookup</div>
+      <div class="feat-desc">Identifica o fabricante de cada dispositivo pelo MAC</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">🖥️</span>
+      <div class="feat-name">OS Fingerprint</div>
+      <div class="feat-desc">Estimativa de SO via análise de TTL — Linux, Windows, Router</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">👁️</span>
+      <div class="feat-name">Watch Mode</div>
+      <div class="feat-desc">Monitorização contínua com alertas de novos dispositivos</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">🔌</span>
+      <div class="feat-name">Port Scan</div>
+      <div class="feat-desc">Scan rápido das portas mais comuns por dispositivo</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">📄</span>
+      <div class="feat-name">Export JSON/TXT</div>
+      <div class="feat-desc">Exporta resultados para análise posterior</div>
+    </div>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="pipeline">
+    <div class="pipeline-title">// Shadow Suite Pipeline</div>
+    <div class="pipeline-row active">
+      <span class="tool-name">🔍 ShadowScan</span>
+      <span>→</span>
+      <span style="color:#3a5570">Recon — IP, portas, headers</span>
+    </div>
+    <div class="pipeline-row active" style="padding-left:12px;">
+      <span class="pipeline-arrow">↓</span>
+    </div>
+    <div class="pipeline-row active">
+      <span class="tool-name">🌐 ShadowSub</span>
+      <span>→</span>
+      <span style="color:#3a5570">Subdomain discovery</span>
+    </div>
+    <div class="pipeline-row active" style="padding-left:12px;">
+      <span class="pipeline-arrow">↓</span>
+    </div>
+    <div class="pipeline-row active">
+      <span class="tool-name">⚡ ShadowProbe</span>
+      <span>→</span>
+      <span style="color:#3a5570">HTTP/HTTPS probe</span>
+    </div>
+    <div class="pipeline-row active" style="padding-left:12px;">
+      <span class="pipeline-arrow">↓</span>
+    </div>
+    <div class="pipeline-row new-tool">
+      <span class="tool-name">👁️ ShadowEye</span>
+      <span>→</span>
+      <span>Network device monitor</span>
+      &nbsp;<span class="badge-new">NEW</span>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-block">
+    <div class="progress-label">
+      <span>// Progresso de Desenvolvimento</span>
+      <span>35%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-row">
+    <a class="btn-primary" href="https://github.com/mrjoker-web" target="_blank">
+      ⭐ Seguir no GitHub
+    </a>
+    <a class="btn-secondary" href="https://t.me/mr_joker78" target="_blank">
+      Telegram — @mr_joker78
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-brand">Mr<span>Joker</span></div>
+    <div class="footer-links">
+      <a href="https://github.com/mrjoker-web">GitHub</a>
+      <a href="https://t.me/mr_joker78">Telegram</a>
+      <a href="https://x.com/mrjoker3790">X</a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
