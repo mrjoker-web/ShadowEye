@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShadowEye — LinkedIn Launch Post</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=Fira+Code:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:       #0b0c10;
+  --card:     #0f1117;
+  --card2:    #13151e;
+  --border:   #1e2130;
+  --accent:   #7c6aff;
+  --accent2:  #a594ff;
+  --green:    #3ddc84;
+  --amber:    #ffb547;
+  --white:    #eef0f8;
+  --muted:    #5c6180;
+  --muted2:   #2a2d3e;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+/* grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9998;
+}
+
+/* animated gradient bg blob */
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+.blob-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(124,106,255,0.07), transparent 70%);
+  top: -100px; right: -100px;
+  animation: drift 12s ease-in-out infinite alternate;
+}
+.blob-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(61,220,132,0.04), transparent 70%);
+  bottom: -80px; left: -80px;
+  animation: drift 16s ease-in-out infinite alternate-reverse;
+}
+@keyframes drift {
+  from { transform: translate(0,0); }
+  to   { transform: translate(40px, 30px); }
+}
+
+.page {
+  position: relative; z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 56px 32px 72px;
+}
+
+/* stagger fade */
+.s { opacity: 0; transform: translateY(18px); animation: up 0.65s ease forwards; }
+.s:nth-child(1) { animation-delay: 0.00s; }
+.s:nth-child(2) { animation-delay: 0.08s; }
+.s:nth-child(3) { animation-delay: 0.16s; }
+.s:nth-child(4) { animation-delay: 0.24s; }
+.s:nth-child(5) { animation-delay: 0.32s; }
+.s:nth-child(6) { animation-delay: 0.40s; }
+.s:nth-child(7) { animation-delay: 0.48s; }
+.s:nth-child(8) { animation-delay: 0.56s; }
+.s:nth-child(9) { animation-delay: 0.64s; }
+@keyframes up { to { opacity:1; transform:translateY(0); } }
+
+/* ── topbar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 52px;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  animation: glow 2s ease-in-out infinite;
+}
+@keyframes glow {
+  0%,100% { box-shadow: 0 0 6px var(--accent); }
+  50%      { box-shadow: 0 0 16px var(--accent2); }
+}
+
+.brand-text {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--accent2);
+  text-transform: uppercase;
+}
+
+.launch-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(61,220,132,0.08);
+  border: 1px solid rgba(61,220,132,0.25);
+  padding: 6px 14px;
+  font-family: 'Fira Code', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--green);
+  text-transform: uppercase;
+}
+
+.badge-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,100% { opacity:1; }
+  50%      { opacity:0.3; }
+}
+
+/* ── hero ── */
+.hero { margin-bottom: 52px; }
+
+.hero-eyebrow {
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px; height: 1px;
+  background: var(--accent);
+}
+
+.hero-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(42px, 10vw, 80px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -2px;
+  margin-bottom: 20px;
+}
+
+.hero-title .t1 { color: var(--white); display: block; }
+.hero-title .t2 {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--accent);
+  display: block;
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: -1px;
+}
+
+.hero-sub {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 560px;
+  font-weight: 300;
+  margin-bottom: 28px;
+}
+
+.hero-sub strong { color: var(--white); font-weight: 500; }
+
+.hero-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--accent2);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(124,106,255,0.3);
+  padding-bottom: 2px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.hero-link:hover { color: var(--white); border-color: var(--accent); }
+
+/* ── separator ── */
+.sep {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 44px;
+}
+.sep-line { flex:1; height:1px; background: var(--border); }
+.sep-mark {
+  font-family: 'Fira Code', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--muted2);
+}
+
+/* ── code terminal ── */
+.terminal {
+  background: #080a0f;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  margin-bottom: 44px;
+  overflow: hidden;
+}
+
+.terminal-bar {
+  background: #0d0f16;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.t-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.t-dot.r { background: #ff5f56; }
+.t-dot.y { background: #ffbd2e; }
+.t-dot.g { background: #27c93f; }
+
+.t-title {
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-left: 4px;
+}
+
+.terminal-body {
+  padding: 20px 24px;
+  font-family: 'Fira Code', monospace;
+  font-size: 12.5px;
+  line-height: 1.9;
+}
+
+.ln { display: flex; gap: 16px; }
+.ln-num { color: var(--muted2); min-width: 16px; text-align: right; user-select: none; }
+.ln-code { flex: 1; }
+
+.c-dim    { color: #3a3f55; }
+.c-purple { color: #bd93f9; }
+.c-green  { color: var(--green); }
+.c-amber  { color: var(--amber); }
+.c-blue   { color: #8be9fd; }
+.c-white  { color: var(--white); }
+.c-red    { color: #ff6b8a; }
+
+/* ── features ── */
+.features-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 44px;
+}
+
+.feat {
+  background: var(--card);
+  padding: 22px 20px;
+  transition: background 0.25s;
+  position: relative;
+}
+
+.feat:hover { background: var(--card2); }
+
+.feat-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.feat-icon {
+  font-size: 16px;
+}
+
+.feat-name {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--accent2);
+}
+
+.feat-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ── install block ── */
+.install-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  padding: 24px 28px;
+  margin-bottom: 44px;
+}
+
+.install-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.install-cmd {
+  font-family: 'Fira Code', monospace;
+  font-size: 12.5px;
+  line-height: 2;
+  color: var(--white);
+}
+
+.install-cmd .prompt { color: var(--green); margin-right: 8px; }
+.install-cmd .cmd    { color: var(--accent2); }
+.install-cmd .arg    { color: var(--amber); }
+.install-cmd .comment { color: var(--muted2); }
+
+/* ── pipeline ── */
+.pipeline-block {
+  margin-bottom: 44px;
+}
+
+.pipeline-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.pipe-step {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 14px 18px;
+  flex-shrink: 0;
+  text-align: center;
+  transition: border-color 0.3s;
+}
+
+.pipe-step.active {
+  border-color: var(--accent);
+  background: rgba(124,106,255,0.06);
+}
+
+.pipe-step:hover { border-color: var(--muted); }
+.pipe-step.active:hover { border-color: var(--accent2); }
+
+.pipe-name {
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.pipe-step.active .pipe-name { color: var(--accent2); }
+
+.pipe-role {
+  font-size: 10px;
+  color: var(--muted2);
+}
+
+.pipe-step.active .pipe-role { color: var(--muted); }
+
+.pipe-arrow {
+  color: var(--muted2);
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.new-tag {
+  display: inline-block;
+  background: rgba(124,106,255,0.15);
+  border: 1px solid rgba(124,106,255,0.4);
+  color: var(--accent2);
+  font-family: 'Fira Code', monospace;
+  font-size: 7px;
+  letter-spacing: 2px;
+  padding: 2px 7px;
+  margin-top: 4px;
+  animation: tagpulse 2s ease-in-out infinite;
+}
+
+@keyframes tagpulse {
+  0%,100% { box-shadow: 0 0 4px rgba(124,106,255,0.2); }
+  50%      { box-shadow: 0 0 12px rgba(124,106,255,0.5); }
+}
+
+/* ── disclaimer ── */
+.disclaimer {
+  background: rgba(255,181,71,0.05);
+  border: 1px solid rgba(255,181,71,0.15);
+  border-left: 2px solid var(--amber);
+  padding: 14px 20px;
+  margin-bottom: 44px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.disc-icon { color: var(--amber); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.disc-text { font-size: 11.5px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+.disc-text strong { color: var(--amber); font-weight: 500; }
+
+/* ── CTA ── */
+.cta {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  padding: 36px 36px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: center;
+  margin-bottom: 52px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+}
+
+.cta-head {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(20px, 4vw, 30px);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.cta-head em { font-style: italic; color: var(--accent2); }
+
+.cta-sub {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+.cta-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn-main {
+  display: block;
+  background: var(--accent);
+  color: var(--white);
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 13px 24px;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+
+.btn-main:hover {
+  background: var(--accent2);
+  box-shadow: 0 4px 20px rgba(124,106,255,0.35);
+}
+
+.btn-ghost {
+  display: block;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 12px 24px;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+
+.btn-ghost:hover { color: var(--white); border-color: var(--muted); }
+
+/* ── footer ── */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-name {
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.footer-name span { color: var(--accent2); font-style: italic; }
+
+.footer-stack {
+  font-family: 'Fira Code', monospace;
+  font-size: 9px;
+  color: var(--muted2);
+  letter-spacing: 2px;
+}
+
+/* responsive */
+@media (max-width: 580px) {
+  .page { padding: 36px 18px 56px; }
+  .cta  { grid-template-columns: 1fr; }
+  .cta-buttons { flex-direction: row; flex-wrap: wrap; }
+  .pipeline { gap: 4px; }
+  .pipe-arrow { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="page">
+
+  <!-- topbar -->
+  <div class="topbar s">
+    <div class="topbar-brand">
+      <div class="brand-dot"></div>
+      <div class="brand-text">mrjoker-web / Shadow Suite</div>
+    </div>
+    <div class="launch-badge">
+      <span class="badge-dot"></span>
+      Open Source — v1.0
+    </div>
+  </div>
+
+  <!-- hero -->
+  <div class="hero s">
+    <div class="hero-eyebrow">Novo lançamento · Shadow Suite</div>
+    <h1 class="hero-title">
+      <span class="t1">Shadow</span>
+      <span class="t2">Eye.</span>
+    </h1>
+    <p class="hero-sub">
+      Construí uma ferramenta open source que <strong>monitoriza a tua rede local em tempo real</strong> — descobre todos os dispositivos conectados, identifica fabricantes, estima o sistema operativo e alerta-te quando entra um dispositivo desconhecido.
+      <br><br>
+      100% Python · MIT License · Corre em Linux e <strong>Termux (Android)</strong>.
+    </p>
+    <a class="hero-link" href="https://github.com/mrjoker-web/ShadowEye" target="_blank">
+      ↗ github.com/mrjoker-web/ShadowEye
+    </a>
+  </div>
+
+  <div class="sep s">
+    <div class="sep-line"></div>
+    <div class="sep-mark">// code</div>
+    <div class="sep-line"></div>
+  </div>
+
+  <!-- terminal -->
+  <div class="terminal s">
+    <div class="terminal-bar">
+      <div class="t-dot r"></div>
+      <div class="t-dot y"></div>
+      <div class="t-dot g"></div>
+      <div class="t-title">shadoweye.py — Python 3</div>
+    </div>
+    <div class="terminal-body">
+      <div class="ln"><span class="ln-num c-dim">1</span><span class="ln-code c-dim"># ShadowEye — Network Monitor v1.0 | Shadow Suite by Mr Joker</span></div>
+      <div class="ln"><span class="ln-num c-dim">2</span><span class="ln-code"> </span></div>
+      <div class="ln"><span class="ln-num c-dim">3</span><span class="ln-code"><span class="c-purple">from</span> <span class="c-blue">scapy.all</span> <span class="c-purple">import</span> <span class="c-white">ARP, Ether, srp</span></span></div>
+      <div class="ln"><span class="ln-num c-dim">4</span><span class="ln-code"><span class="c-purple">from</span> <span class="c-blue">rich.table</span> <span class="c-purple">import</span> <span class="c-white">Table</span></span></div>
+      <div class="ln"><span class="ln-num c-dim">5</span><span class="ln-code"> </span></div>
+      <div class="ln"><span class="ln-num c-dim">6</span><span class="ln-code"><span class="c-dim"># Scan ARP → descobre hosts ativos</span></span></div>
+      <div class="ln"><span class="ln-num c-dim">7</span><span class="ln-code"><span class="c-purple">def</span> <span class="c-green">arp_scan</span><span class="c-white">(</span><span class="c-amber">network</span><span class="c-white">: str) → list[dict]:</span></span></div>
+      <div class="ln"><span class="ln-num c-dim">8</span><span class="ln-code">    <span class="c-white">packet</span> <span class="c-red">=</span> <span class="c-blue">Ether</span><span class="c-white">(dst=</span><span class="c-green">"ff:ff:ff:ff:ff:ff"</span><span class="c-white">) / </span><span class="c-blue">ARP</span><span class="c-white">(pdst=</span><span class="c-amber">network</span><span class="c-white">)</span></span></div>
+      <div class="ln"><span class="ln-num c-dim">9</span><span class="ln-code">    <span class="c-white">answered, _ </span><span class="c-red">=</span> <span class="c-green">srp</span><span class="c-white">(packet, timeout=</span><span class="c-amber">2</span><span class="c-white">, retry=</span><span class="c-amber">1</span><span class="c-white">)</span></span></div>
+      <div class="ln"><span class="ln-num c-dim">10</span><span class="ln-code">    <span class="c-purple">return</span> <span class="c-white">[{</span><span class="c-green">"ip"</span><span class="c-white">: r.psrc, </span><span class="c-green">"mac"</span><span class="c-white">: r.hwsrc} </span><span class="c-purple">for</span> <span class="c-white">_, r </span><span class="c-purple">in</span> <span class="c-white">answered]</span></span></div>
+    </div>
+  </div>
+
+  <!-- features -->
+  <div class="s">
+    <div class="features-label">// Features</div>
+    <div class="features-grid">
+      <div class="feat">
+        <div class="feat-top"><span class="feat-icon">🔎</span><span class="feat-name">ARP Scan</span></div>
+        <div class="feat-desc">Descobre hosts ativos via ARP — rápido e sem falsos negativos</div>
+      </div>
+      <div class="feat">
+        <div class="feat-top"><span class="feat-icon">🏭</span><span class="feat-name">Vendor Lookup</span></div>
+        <div class="feat-desc">Identifica fabricante por MAC address — offline, sem API</div>
+      </div>
+      <div class="feat">
+        <div class="feat-top"><span class="feat-icon">🖥️</span><span class="feat-name">OS Fingerprint</span></div>
+        <div class="feat-desc">Estima SO via análise de TTL — Linux, Windows, Network Device</div>
+      </div>
+      <div class="feat">
+        <div class="feat-top"><span class="feat-icon">👁️</span><span class="feat-name">Watch Mode</span></div>
+        <div class="feat-desc">Monitorização contínua com alerta de novos dispositivos em tempo real</div>
+      </div>
+      <div class="feat">
+        <div class="feat-top"><span class="feat-icon">🔌</span><span class="feat-name">Port Scan</span></div>
+        <div class="feat-desc">Scan rápido das portas mais comuns por dispositivo (flag -p)</div>
+      </div>
+      <div class="feat">
+        <div class="feat-top"><span class="feat-icon">📄</span><span class="feat-name">Export</span></div>
+        <div class="feat-desc">Exporta resultados para JSON ou TXT para análise posterior</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- install -->
+  <div class="install-block s">
+    <div class="install-label">// Instalação rápida</div>
+    <div class="install-cmd">
+      <div><span class="prompt">$</span><span class="cmd">git clone </span><span class="arg">https://github.com/mrjoker-web/ShadowEye</span></div>
+      <div><span class="prompt">$</span><span class="cmd">pip install </span><span class="arg">scapy rich</span></div>
+      <div><span class="prompt">$</span><span class="cmd">sudo python3 </span><span class="arg">shadoweye.py</span> <span class="comment">  # ou -w para watch mode</span></div>
+    </div>
+  </div>
+
+  <!-- pipeline -->
+  <div class="pipeline-block s">
+    <div class="pipeline-label">// Shadow Suite Pipeline</div>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-name">ShadowSub</div>
+        <div class="pipe-role">Subdomains</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-name">ShadowProbe</div>
+        <div class="pipe-role">HTTP Probe</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-name">ShadowScan</div>
+        <div class="pipe-role">Port Scan</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step active">
+        <div class="pipe-name">ShadowEye</div>
+        <div class="pipe-role">Net Monitor</div>
+        <div class="new-tag">NEW</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- disclaimer -->
+  <div class="disclaimer s">
+    <div class="disc-icon">⚠</div>
+    <div class="disc-text">
+      <strong>Para uso ético e educacional.</strong> Usa apenas em redes onde tens autorização explícita. O autor não se responsabiliza por uso indevido.
+    </div>
+  </div>
+
+  <!-- cta -->
+  <div class="cta s">
+    <div>
+      <div class="cta-head">Dá uma <em>star</em> se te for útil ⭐</div>
+      <div class="cta-sub">Open source · MIT License · Contribuições bem-vindas<br>Issues, PRs e feedback são sempre bem recebidos.</div>
+    </div>
+    <div class="cta-buttons">
+      <a class="btn-main" href="https://github.com/mrjoker-web/ShadowEye" target="_blank">Ver no GitHub</a>
+      <a class="btn-ghost" href="https://t.me/gnu23" target="_blank">Telegram @gnu23</a>
+    </div>
+  </div>
+
+  <!-- footer -->
+  <div class="footer s">
+    <div class="footer-name">Nuno <span>Ferreira</span></div>
+    <div class="footer-stack">#Python &nbsp;#Cybersecurity &nbsp;#OpenSource &nbsp;#EthicalHacking &nbsp;#Pentest</div>
+  </div>
+
+</div>
+
+</body>
+</html>
